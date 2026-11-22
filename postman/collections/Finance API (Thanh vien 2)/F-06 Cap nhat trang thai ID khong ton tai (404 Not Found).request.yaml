@@ -1,0 +1,25 @@
+$kind: http-request
+name: F-06: Cập nhật trạng thái ID không tồn tại (404 Not Found)
+method: PUT
+url: "{{base_url}}/api/tuitions/9999/status"
+headers:
+  - key: Content-Type
+    value: application/json
+  - key: Accept
+    value: application/json
+body:
+  type: json
+  content: '{"status": "PAID"}'
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status code is 404 Not Found", function () {
+          pm.response.to.have.status(404);
+      });
+      pm.test("Error message indicates tuition not found", function () {
+          var jsonData = pm.response.json();
+          pm.expect(jsonData.status).to.eql(404);
+          pm.expect(jsonData.message).to.include("Không tìm thấy khoản học phí 9999");
+      });
+order: 6000

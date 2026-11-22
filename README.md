@@ -1,90 +1,113 @@
-# Chủ đề 04: Tích hợp ứng dụng qua REST API và Portal
+# BÁO CÁO & MÃ NGUỒN PHẦN MỀM TÍCH HỢP HỆ THỐNG - CHỦ ĐỀ 04
+## THÀNH VIÊN 2: FINANCE API VÀ KIỂM THỬ LỖI
 
-Bài tập lớn học phần Nhập môn Tích hợp hệ thống. Hệ thống gồm hai dịch vụ độc lập
-(Academic, Finance) và một Portal tổng hợp dữ liệu từ hai dịch vụ qua REST API.
-Toàn bộ dữ liệu là dữ liệu giả lập.
+### 1. Giới thiệu tổng quan
+Dự án này là thành phần của đồ án môn học **Nhập môn Tích hợp hệ thống** (Học viện Công nghệ Bưu chính Viễn thông - PTIT), **Chủ đề 04: Tích hợp ứng dụng thông qua REST API và Cổng thông tin Portal**.
 
-## Thành viên
+Thành viên 2 phụ trách:
+- Xây dựng dịch vụ **Finance API** (cổng `8082`, sử dụng Spring Boot và cơ sở dữ liệu `finance_db` trên PostgreSQL).
+- Xây dựng **Postman Collection** kiểm thử đầy đủ các endpoint (200, 400, 404, kiểm tra cấu trúc dữ liệu và logic nghiệp vụ).
+- Thiết kế và thực nghiệm **Kiểm thử ngoại lệ** khi Finance không phản hồi (3 cách) để kiểm chứng khả năng **suy giảm có kiểm soát (Graceful Degradation)** của Portal Backend.
+- Hoàn thiện báo cáo cá nhân chuẩn quy định học viện (`BAO_CAO_CA_NHAN_THANH_VIEN_2.docx` và `BAO_CAO_CA_NHAN_THANH_VIEN_2.md`).
 
-| Vai trò | Họ tên | MSSV | Phụ trách | Nhánh Git |
-|---|---|---|---|---|
-| Nhóm trưởng | [Điền] | [Điền] | Portal, tích hợp, Docker, tổng hợp báo cáo | `feature/portal` |
-| Thành viên 1 | [Điền] | [Điền] | Academic API, Postman | `feature/academic` |
-| Thành viên 2 | [Điền] | [Điền] | Finance API, kiểm thử lỗi | `feature/finance` |
+---
 
-## Kiến trúc
-
+### 2. Cấu trúc thư mục
 ```
-Người dùng -> Portal frontend :3000 -> Portal backend :8080
-                                          |-> Academic API :8081 -> academic_db
-                                          |-> Finance API  :8082 -> finance_db
+TichHopHeThong_ChuDe04_FinanceAPI/
+├── README.md                                  # Hướng dẫn chi tiết sử dụng & kiểm thử
+├── API-CONTRACT.md                            # Hợp đồng API chuẩn giữa Portal, Academic, Finance
+├── BAO_CAO_CA_NHAN_THANH_VIEN_2.docx          # Báo cáo cá nhân bản Word (.docx chuẩn PTIT)
+├── BAO_CAO_CA_NHAN_THANH_VIEN_2.md            # Báo cáo cá nhân bản Markdown hoàn chỉnh
+├── docker-compose.yml                         # Cấu hình khởi chạy PostgreSQL và Finance API
+├── postman/
+│   └── finance.postman_collection.json        # Postman Collection chứa 7 kịch bản test kèm test script
+├── scripts/
+│   ├── run_test_suite.py                      # Script Python tự động chạy các ca F1 -> F7
+│   └── simulate_failure.sh                    # Hướng dẫn & minh họa 3 ca kiểm thử ngoại lệ
+└── finance-api/                               # Mã nguồn dịch vụ Finance API (Spring Boot)
+    ├── pom.xml
+    ├── Dockerfile
+    └── src/
+        ├── main/
+        │   ├── java/com/ptit/finance/
+        │   │   ├── FinanceApiApplication.java
+        │   │   ├── config/CorsConfig.java
+        │   │   ├── controller/TuitionController.java
+        │   │   ├── dto/StatusRequest.java
+        │   │   ├── dto/ErrorResponse.java
+        │   │   ├── exception/BadRequestException.java
+        │   │   ├── exception/NotFoundException.java
+        │   │   ├── exception/GlobalExceptionHandler.java
+        │   │   ├── model/Tuition.java
+        │   │   └── repository/TuitionRepository.java
+        │   └── resources/
+        │       ├── application.yml
+        │       ├── schema.sql
+        │       └── data.sql
+        └── test/java/com/ptit/finance/TuitionControllerTest.java
 ```
 
-Portal không có cơ sở dữ liệu riêng và không đọc trực tiếp CSDL của hệ thống khác.
-Chi tiết endpoint, JSON mẫu và mã lỗi: xem [API-CONTRACT.md](API-CONTRACT.md).
+---
 
-## Cấu trúc thư mục
+### 3. Hướng dẫn khởi chạy
 
-| Thư mục | Nội dung |
-|---|---|
-| `academic-api/` | Dịch vụ Academic (Spring Boot, cổng 8081) |
-| `finance-api/` | Dịch vụ Finance (Spring Boot, cổng 8082) |
-| `portal-backend/` | Portal backend (Spring Boot, cổng 8080) |
-| `portal-frontend/` | Giao diện Portal (React + Ant Design, cổng 3000) |
-| `postman/` | Postman collection kiểm thử |
-| `docs/` | Sơ đồ, ảnh bằng chứng, báo cáo |
-
-## Yêu cầu cài đặt
-
-- Docker và Docker Compose (cách chạy nhanh nhất)
-- Hoặc chạy thủ công: Java 17, Maven, Node.js 18+, PostgreSQL 14+
-- Postman để chạy lại kiểm thử
-
-## Chạy bằng Docker
-
+#### Cách 1: Khởi chạy bằng Docker Compose (Khuyên dùng)
+Yêu cầu: Đã cài đặt Docker và Docker Compose.
 ```bash
-cp .env.example .env        # điền mật khẩu thật nếu cần
-docker compose up --build
+# Khởi động PostgreSQL (finance_db) và Finance API (port 8082)
+docker compose up -d
+
+# Xem log hoạt động
+docker compose logs -f finance-api
 ```
 
-| Thành phần | Địa chỉ |
-|---|---|
-| Portal giao diện | http://localhost:3000 |
-| Portal backend | http://localhost:8080/api/portal/students/B22DCCN001/summary |
-| Academic API | http://localhost:8081/api/students/B22DCCN001 |
-| Finance API | http://localhost:8082/api/tuitions/B22DCCN001 |
+#### Cách 2: Khởi chạy trực tiếp bằng Maven
+Yêu cầu: Đã có PostgreSQL đang chạy tại localhost:5432 với database `finance_db`, user `app`, password `app` (hoặc cấu hình lại biến môi trường).
+```bash
+cd finance-api
+mvn clean spring-boot:run
+```
 
-> [Cập nhật lại các bước và địa chỉ này theo đúng cấu hình thực tế khi hoàn thiện.]
+---
 
-## Chạy thủ công (không dùng Docker)
+### 4. Kiểm thử các chức năng chính (Postman & Script)
 
-1. Tạo hai database `academic_db` và `finance_db` trong PostgreSQL.
-2. Chạy từng dịch vụ: `mvn spring-boot:run` trong `academic-api`, `finance-api`, `portal-backend`.
-3. Chạy giao diện: `npm install` rồi `npm run dev` trong `portal-frontend`.
+#### 4.1. Nhập Postman Collection
+- Mở Postman -> Chọn **Import** -> Chọn file `postman/finance.postman_collection.json`.
+- Chạy toàn bộ Collection bằng **Collection Runner**. Toàn bộ 7 request đều có Assertions kiểm tra status code và nội dung JSON.
 
-## Tái hiện các kịch bản kiểm thử
+#### 4.2. Chạy kiểm thử tự động bằng Python
+```bash
+python3 scripts/run_test_suite.py
+```
 
-| Kịch bản | Cách thực hiện | Kết quả mong đợi |
-|---|---|---|
-| Thành công | Tra cứu `B22DCCN001` | 200, đủ thông tin sinh viên và học phí |
-| Không tìm thấy | Tra cứu `B22DCCN999` | 404 |
-| Đầu vào sai | Nhập `abc123` | 400, Portal không gọi API nào |
-| Finance tắt | `docker compose stop finance-api` rồi tra cứu | 200 + cảnh báo, vẫn có thông tin sinh viên |
-| Finance chậm | Chạy Finance với `FINANCE_DELAY_MS=5000` rồi tra cứu | 200 + cảnh báo sau khoảng 3 giây |
-| Finance sai cổng | Đặt `FINANCE_URL` trỏ cổng sai, khởi động lại Portal | 200 + cảnh báo, trả lời nhanh |
-| Academic tắt | `docker compose stop academic-api` rồi tra cứu | 503 |
+Danh sách các ca kiểm thử:
+1. `GET /api/tuitions/B22DCCN001`: Trả 200 OK và mảng học phí gồm 2 khoản (2026-1: UNPAID, 2025-2: PAID).
+2. `GET /api/tuitions/B22DCCN013`: Trả 404 Not Found (mã đúng nhưng chưa có học phí).
+3. `GET /api/tuitions/abc123`: Trả 400 Bad Request (mã không khớp regex `^B\d{2}DC[A-Z]{2}\d{3}$`).
+4. `PUT /api/tuitions/1/status` với body `{"status":"PAID"}`: Trả 200 OK và bản ghi cập nhật sang `PAID`.
+5. `PUT /api/tuitions/1/status` với body `{"status":"DONE"}`: Trả 400 Bad Request (trạng thái ngoài PAID/UNPAID).
+6. `PUT /api/tuitions/9999/status`: Trả 404 Not Found (ID không tồn tại).
+7. `GET /api/tuitions/slow?delay=5000`: Trả 200 OK sau khi ngủ đúng thời gian chỉ định.
 
-Postman: nhập các file trong thư mục `postman/` vào Postman, chọn Run collection.
+---
 
-## Quy ước làm việc
-
-- `main` luôn chạy được; không push thẳng, mọi thay đổi qua Pull Request và được nhóm trưởng review.
-- Mỗi người làm trên nhánh riêng và chỉ sửa trong thư mục của mình.
-- Commit message có tiền tố: `Academic: ...`, `Finance: ...`, `Portal: ...`, `Docs: ...`.
-- Không commit mật khẩu thật, file `.env`, `target/`, `node_modules/`.
-- Đổi tên trường, cổng hay mã lỗi phải báo nhóm và cập nhật `API-CONTRACT.md` trước khi sửa code.
-
-## Dữ liệu giả lập
-
-12 sinh viên `B22DCCN001` đến `B22DCCN012`, mỗi sinh viên có 1 đến 3 khoản học phí.
-Không sử dụng dữ liệu cá nhân thực tế.
+### 5. Kiểm thử ngoại lệ: 3 cách làm Finance không phản hồi
+Thành viên 2 chịu trách nhiệm kiểm thử khả năng chịu lỗi của Portal khi Finance gặp sự cố:
+1. **Cách a (Tắt dịch vụ)**:
+   ```bash
+   docker compose stop finance-api
+   ```
+   - Portal gọi sang sẽ bị từ chối kết nối ngay lập tức (`ConnectException`).
+   - Phản hồi từ Portal: HTTP 200, `student` đầy đủ thông tin, `tuitions = null`, `warnings = ["Không lấy được học phí"]`. Thời gian phản hồi: < 50ms.
+2. **Cách b (Làm chậm dịch vụ với biến môi trường)**:
+   ```bash
+   FINANCE_DELAY_MS=5000 docker compose up -d finance-api
+   ```
+   - Finance sẽ cố tình trễ 5 giây khi xử lý `GET /api/tuitions/{studentId}`.
+   - Portal có cấu hình timeout cho Finance là 3 giây (3000ms).
+   - Phản hồi từ Portal: Sau đúng 3 giây xảy ra `ReadTimeoutException`, Portal thực hiện suy giảm có kiểm soát, trả về HTTP 200 + dữ liệu sinh viên + cảnh báo học phí.
+3. **Cách c (Cấu hình sai cổng)**:
+   - Trong Portal Backend, đổi `FINANCE_URL=http://localhost:9999`.
+   - Kết nối bị từ chối ngay lập tức tương tự Cách a.

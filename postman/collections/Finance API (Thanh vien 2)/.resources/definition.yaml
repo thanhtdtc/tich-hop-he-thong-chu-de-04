@@ -1,0 +1,7 @@
+$kind: collection
+name: Finance API (Thành viên 2)
+description: |-
+  Bộ kiểm thử Postman hoàn chỉnh cho dịch vụ Finance API (Chủ đề 04: Tích hợp ứng dụng qua REST API và Portal).
+  Bao gồm kiểm thử thành công, kiểm thử dữ liệu không tồn tại, kiểm thử lỗi đầu vào và cơ chế làm chậm.
+variables:
+  base_url: http://localhost:8082

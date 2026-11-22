@@ -1,0 +1,21 @@
+$kind: http-request
+name: F-07: Giả lập phản hồi chậm endpoint slow (Kiểm thử delay 5s)
+method: GET
+url: "{{base_url}}/api/tuitions/slow?delay=5000"
+queryParams:
+  - key: delay
+    value: '5000'
+headers:
+  - key: Accept
+    value: application/json
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status code is 200 OK", function () {
+          pm.response.to.have.status(200);
+      });
+      pm.test("Response time is at least 4800ms", function () {
+          pm.expect(pm.response.responseTime).to.be.above(4800);
+      });
+order: 7000

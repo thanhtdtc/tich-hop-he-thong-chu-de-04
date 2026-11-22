@@ -1,0 +1,8 @@
+# Use this workspace to collaborate
+workspace:
+  id: 8acd8db3-65a5-46d9-b235-2dc2de1b8638
+
+localResources:
+  collections:
+    - collections/Finance API (Thanh vien 2)
+    - ../finance.postman_collection.json

@@ -1,0 +1,20 @@
+$kind: http-request
+name: F-02: Lấy học phí sinh viên chưa có bản ghi (404 Not Found)
+method: GET
+url: "{{base_url}}/api/tuitions/B22DCCN013"
+headers:
+  - key: Accept
+    value: application/json
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status code is 404 Not Found", function () {
+          pm.response.to.have.status(404);
+      });
+      pm.test("Error response contains status and message", function () {
+          var jsonData = pm.response.json();
+          pm.expect(jsonData.status).to.eql(404);
+          pm.expect(jsonData.message).to.include("Chưa có khoản học phí");
+      });
+order: 2000

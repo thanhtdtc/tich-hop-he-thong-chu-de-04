@@ -1,0 +1,321 @@
+{
+  "info": {
+    "_postman_id": "a5d89f31-8c4d-4521-b3b0-finance-ptit-04",
+    "name": "PTIT - Finance API Test Collection (Thành viên 2)",
+    "description": "Collection kiểm thử đầy đủ các endpoint của Finance API (Chủ đề 04: Tích hợp ứng dụng qua REST API và Portal). Bao gồm kiểm thử thành công, kiểm thử dữ liệu không tồn tại, kiểm thử lỗi đầu vào và cơ chế làm chậm (delay).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8082",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "F-01: Lấy học phí sinh viên hợp lệ (200 OK)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/tuitions/B22DCCN001",
+          "host": ["{{base_url}}"],
+          "path": ["api", "tuitions", "B22DCCN001"]
+        },
+        "description": "Tra cứu học phí sinh viên B22DCCN001 có sẵn trong cơ sở dữ liệu."
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200 OK\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"Response is an array of tuitions\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData).to.be.an(\"array\");",
+              "    pm.expect(jsonData.length).to.be.above(0);",
+              "});",
+              "",
+              "pm.test(\"Verify tuition object structure\", function () {",
+              "    var item = pm.response.json()[0];",
+              "    pm.expect(item).to.have.property(\"id\");",
+              "    pm.expect(item).to.have.property(\"studentId\", \"B22DCCN001\");",
+              "    pm.expect(item).to.have.property(\"semester\");",
+              "    pm.expect(item).to.have.property(\"amount\");",
+              "    pm.expect(item).to.have.property(\"status\");",
+              "    pm.expect(item).to.have.property(\"dueDate\");",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "F-02: Lấy học phí sinh viên chưa có bản ghi (404 Not Found)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/tuitions/B22DCCN013",
+          "host": ["{{base_url}}"],
+          "path": ["api", "tuitions", "B22DCCN013"]
+        },
+        "description": "Mã sinh viên đúng định dạng nhưng chưa có bản ghi học phí trong finance_db."
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 404 Not Found\", function () {",
+              "    pm.response.to.have.status(404);",
+              "});",
+              "",
+              "pm.test(\"Error response contains status and message\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.status).to.eql(404);",
+              "    pm.expect(jsonData.message).to.include(\"Chưa có khoản học phí\");",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "F-03: Lấy học phí mã sinh viên sai định dạng (400 Bad Request)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/tuitions/abc123",
+          "host": ["{{base_url}}"],
+          "path": ["api", "tuitions", "abc123"]
+        },
+        "description": "Mã sinh viên không khớp regex ^B\\d{2}DC[A-Z]{2}\\d{3}$."
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 400 Bad Request\", function () {",
+              "    pm.response.to.have.status(400);",
+              "});",
+              "",
+              "pm.test(\"Error message indicates invalid format\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.status).to.eql(400);",
+              "    pm.expect(jsonData.message).to.eql(\"Mã sinh viên sai định dạng\");",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "F-04: Cập nhật trạng thái học phí hợp lệ (200 OK)",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"status\": \"PAID\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/tuitions/1/status",
+          "host": ["{{base_url}}"],
+          "path": ["api", "tuitions", "1", "status"]
+        },
+        "description": "Cập nhật khoản học phí id=1 sang trạng thái PAID."
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200 OK\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"Status updated to PAID\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.id).to.eql(1);",
+              "    pm.expect(jsonData.status).to.eql(\"PAID\");",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "F-05: Cập nhật trạng thái không hợp lệ (400 Bad Request)",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"status\": \"DONE\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/tuitions/1/status",
+          "host": ["{{base_url}}"],
+          "path": ["api", "tuitions", "1", "status"]
+        },
+        "description": "Gửi trạng thái 'DONE' không nằm trong tập hợp cho phép (PAID, UNPAID)."
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 400 Bad Request\", function () {",
+              "    pm.response.to.have.status(400);",
+              "});",
+              "",
+              "pm.test(\"Error message indicates invalid status\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.status).to.eql(400);",
+              "    pm.expect(jsonData.message).to.eql(\"Trạng thái chỉ nhận PAID hoặc UNPAID\");",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "F-06: Cập nhật trạng thái ID không tồn tại (404 Not Found)",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"status\": \"PAID\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/tuitions/9999/status",
+          "host": ["{{base_url}}"],
+          "path": ["api", "tuitions", "9999", "status"]
+        },
+        "description": "Khoản học phí có ID=9999 không tồn tại trong cơ sở dữ liệu."
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 404 Not Found\", function () {",
+              "    pm.response.to.have.status(404);",
+              "});",
+              "",
+              "pm.test(\"Error message indicates tuition not found\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.status).to.eql(404);",
+              "    pm.expect(jsonData.message).to.include(\"Không tìm thấy khoản học phí 9999\");",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "F-07: Giả lập phản hồi chậm endpoint /slow (Kiểm thử delay 5s)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/tuitions/slow?delay=5000",
+          "host": ["{{base_url}}"],
+          "path": ["api", "tuitions", "slow"],
+          "query": [
+            {
+              "key": "delay",
+              "value": "5000"
+            }
+          ]
+        },
+        "description": "Endpoint test delay có chủ đích 5000ms để kiểm chứng thời gian phản hồi."
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200 OK\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"Response time is at least 4800ms\", function () {",
+              "    pm.expect(pm.response.responseTime).to.be.above(4800);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    }
+  ]
+}

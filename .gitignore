@@ -1,22 +1,28 @@
-# Java / Maven
+# Maven build artifacts
 target/
 *.class
+
+# Package files
 *.jar
+*.war
+*.ear
+
+# macOS system files
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Microsoft Office temporary lock files
+~$*.docx
+~$*.doc
+
+# Logs
 *.log
 
-# Node
-node_modules/
-dist/
-build/
-
-# IDE
+# IDE files
 .idea/
-.vscode/
 *.iml
+.vscode/
 
-# Môi trường (không commit mật khẩu thật)
-.env
-
-# Hệ điều hành
-.DS_Store
-Thumbs.db
+# Docker volumes & local data
+*.pid

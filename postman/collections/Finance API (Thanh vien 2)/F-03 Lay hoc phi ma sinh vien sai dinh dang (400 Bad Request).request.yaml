@@ -1,0 +1,20 @@
+$kind: http-request
+name: F-03: Lấy học phí mã sinh viên sai định dạng (400 Bad Request)
+method: GET
+url: "{{base_url}}/api/tuitions/abc123"
+headers:
+  - key: Accept
+    value: application/json
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status code is 400 Bad Request", function () {
+          pm.response.to.have.status(400);
+      });
+      pm.test("Error message indicates invalid format", function () {
+          var jsonData = pm.response.json();
+          pm.expect(jsonData.status).to.eql(400);
+          pm.expect(jsonData.message).to.eql("Mã sinh viên sai định dạng");
+      });
+order: 3000
