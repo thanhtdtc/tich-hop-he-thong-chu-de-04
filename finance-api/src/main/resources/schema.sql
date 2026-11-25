@@ -4,11 +4,12 @@
 
 CREATE TABLE IF NOT EXISTS tuition (
     id         BIGSERIAL   PRIMARY KEY,
-    student_id VARCHAR(12) NOT NULL,        -- Mã tham chiếu, KHÔNG có khóa ngoại sang CSDL khác
+    student_id VARCHAR(12) NOT NULL,
     semester   VARCHAR(10) NOT NULL,
     amount     BIGINT      NOT NULL CHECK (amount > 0),
     status     VARCHAR(10) NOT NULL CHECK (status IN ('PAID', 'UNPAID')),
-    due_date   DATE
+    due_date   DATE,
+    CONSTRAINT uq_tuition UNIQUE (student_id, semester)
 );
 
 CREATE INDEX IF NOT EXISTS idx_tuition_student ON tuition(student_id);

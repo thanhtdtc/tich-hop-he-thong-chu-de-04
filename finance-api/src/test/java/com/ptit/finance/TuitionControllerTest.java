@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -28,7 +28,7 @@ public class TuitionControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @MockBean
+    @MockitoBean
     private TuitionRepository repo;
 
     @Test
@@ -45,13 +45,14 @@ public class TuitionControllerTest {
     }
 
     @Test
-    @DisplayName("GET /api/tuitions/B22DCCN013 - Sinh viên chưa có học phí trả 404 Not Found")
+    @DisplayName("GET /api/tuitions/B22DCCN011 - Sinh viên chưa có học phí trả 404 Not Found")
     void testGetTuitionNotFound() throws Exception {
-        Mockito.when(repo.findByStudentId("B22DCCN013")).thenReturn(Collections.emptyList());
+        Mockito.when(repo.findByStudentId("B22DCCN011")).thenReturn(Collections.emptyList());
 
-        mockMvc.perform(get("/api/tuitions/B22DCCN013"))
+        mockMvc.perform(get("/api/tuitions/B22DCCN011"))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.status").value(404));
+                .andExpect(jsonPath("$.status").value(404))
+                .andExpect(jsonPath("$.error").value("NOT_FOUND"));
     }
 
     @Test
@@ -60,6 +61,7 @@ public class TuitionControllerTest {
         mockMvc.perform(get("/api/tuitions/abc123"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.error").value("BAD_REQUEST"))
                 .andExpect(jsonPath("$.message").value("Mã sinh viên sai định dạng"));
     }
 
@@ -86,6 +88,18 @@ public class TuitionControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"status\":\"DONE\"}"))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.status").value(400));
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.error").value("BAD_REQUEST"));
+    }
+
+    @Test
+    @DisplayName("PUT /api/tuitions/abc/status - ID không phải số trả 400 Bad Request")
+    void testPutStatusIdNotNumber() throws Exception {
+        mockMvc.perform(put("/api/tuitions/abc/status")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"status\":\"PAID\"}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.error").value("BAD_REQUEST"));
     }
 }

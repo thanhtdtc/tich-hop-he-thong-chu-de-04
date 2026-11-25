@@ -1,7 +1,10 @@
+spring:
+  application:
+    name: finance-api
+
 server:
   port: 8082
 
-spring:
   datasource:
     url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/finance_db}
     username: ${SPRING_DATASOURCE_USERNAME:app}

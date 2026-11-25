@@ -1,22 +1,17 @@
 package com.ptit.finance.dto;
 
-import java.time.LocalDateTime;
-
 public class ErrorResponse {
     private int status;
     private String error;
     private String message;
-    private LocalDateTime timestamp;
 
     public ErrorResponse() {
-        this.timestamp = LocalDateTime.now();
     }
 
     public ErrorResponse(int status, String error, String message) {
         this.status = status;
         this.error = error;
         this.message = message;
-        this.timestamp = LocalDateTime.now();
     }
 
     public int getStatus() {
@@ -41,13 +36,5 @@ public class ErrorResponse {
 
     public void setMessage(String message) {
         this.message = message;
-    }
-
-    public LocalDateTime getTimestamp() {
-        return timestamp;
-    }
-
-    public void setTimestamp(LocalDateTime timestamp) {
-        this.timestamp = timestamp;
     }
 }
