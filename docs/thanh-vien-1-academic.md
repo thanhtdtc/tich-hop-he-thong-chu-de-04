@@ -94,7 +94,7 @@ academic-api/
     └── data.sql
 ```
 
-`application.yaml` nhận URL, username, password từ biến môi trường `ACADEMIC_DB_URL`, `ACADEMIC_DB_USERNAME`, `ACADEMIC_DB_PASSWORD`; mặc định dùng localhost cổng 5432 và database `academic_db`. Khi khởi động, Spring chạy `schema.sql` và `data.sql`. Bảng `student` có `student_id` làm khóa chính; `data.sql` nạp 12 sinh viên giả từ `B22DCCN001` đến `B22DCCN012`. Email giả theo mẫu của nhóm và ngành ghi đầy đủ là Công nghệ thông tin, tương ứng tiền tố `CN` trong mã.
+`application.yaml` nhận URL, username, password từ biến môi trường `ACADEMIC_DB_URL`, `ACADEMIC_DB_USERNAME`, `ACADEMIC_DB_PASSWORD`; mặc định dùng `app/app`, localhost cổng 5432 và database `academic_db` theo cấu hình nhóm. Khi khởi động, Spring chạy `schema.sql` và `data.sql`. Bảng `student` có `student_id` làm khóa chính; `data.sql` nạp 12 sinh viên giả từ `B22DCCN001` đến `B22DCCN012`. Email giả theo mẫu của nhóm và ngành ghi đầy đủ là Công nghệ thông tin, tương ứng tiền tố `CN` trong mã.
 
 ### 4.2. Luồng GET
 

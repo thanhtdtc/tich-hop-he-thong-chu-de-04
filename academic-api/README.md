@@ -35,16 +35,16 @@ Nếu database đã tồn tại thì bỏ qua bước này. Khi chạy ứng d�
 
 ## 3. Cấu hình kết nối
 
-Mặc định API kết nối `localhost:5432`, database `academic_db`, username `postgres`, password `postgres`. Nếu thông tin PostgreSQL trên máy khác, đặt biến môi trường trong PowerShell trước khi chạy:
+Mặc định theo cấu hình nhóm, API kết nối `localhost:5432`, database `academic_db`, username `app`, password `app`. Nếu bạn chạy PostgreSQL cài trực tiếp trên Windows bằng user `postgres`, đặt biến môi trường sau trong PowerShell trước khi chạy:
 
 ```powershell
 $env:ACADEMIC_DB_USERNAME = "postgres"
-$env:ACADEMIC_DB_PASSWORD = "mat_khau_postgres_cua_ban"
+$env:ACADEMIC_DB_PASSWORD = "mat_khau_postgres_ban_da_dat"
 # Chỉ cần đổi nếu PostgreSQL không ở localhost:5432
 $env:ACADEMIC_DB_URL = "jdbc:postgresql://localhost:5432/academic_db"
 ```
 
-Thay `mat_khau_postgres_cua_ban` bằng mật khẩu bạn đã đặt khi cài PostgreSQL.
+Thay `mat_khau_postgres_ban_da_dat` bằng mật khẩu bạn đã đặt khi cài PostgreSQL. Nếu chạy trong Docker theo `.env`, để ứng dụng dùng cấu hình `app/app` hoặc đảm bảo các biến môi trường khớp với tài khoản PostgreSQL.
 
 ## 4. Chạy API
 
@@ -55,6 +55,16 @@ Từ thư mục `academic-api` trong repo `tich-hop-he-thong-chu-de-04`:
 ```
 
 Khi log báo ứng dụng đã khởi động, API ở `http://localhost:8081`. Để dừng, nhấn `Ctrl+C`.
+
+## Build không chạy test
+
+`AcademicApiApplicationTests` khởi động toàn bộ Spring context nên cần database sẵn sàng. Nếu chỉ muốn đóng gói hoặc build Docker khi database chưa chạy, dùng:
+
+```powershell
+.\mvnw.cmd -DskipTests package
+```
+
+Khi đã có PostgreSQL và muốn chạy kiểm thử, dùng `.\mvnw.cmd test`.
 
 ## 5. Gọi thử
 

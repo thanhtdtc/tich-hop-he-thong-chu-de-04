@@ -3,8 +3,8 @@ spring:
     name: academic-api
   datasource:
     url: ${ACADEMIC_DB_URL:jdbc:postgresql://localhost:5432/academic_db}
-    username: ${ACADEMIC_DB_USERNAME:postgres}
-    password: ${ACADEMIC_DB_PASSWORD:postgres}
+    username: ${ACADEMIC_DB_USERNAME:app}
+    password: ${ACADEMIC_DB_PASSWORD:app}
     driver-class-name: org.postgresql.Driver
   sql:
     init:
