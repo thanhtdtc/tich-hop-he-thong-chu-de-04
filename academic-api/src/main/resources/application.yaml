@@ -1,3 +1,19 @@
 spring:
   application:
     name: academic-api
+  datasource:
+    url: ${ACADEMIC_DB_URL:jdbc:postgresql://localhost:5432/academic_db}
+    username: ${ACADEMIC_DB_USERNAME:postgres}
+    password: ${ACADEMIC_DB_PASSWORD:postgres}
+    driver-class-name: org.postgresql.Driver
+  sql:
+    init:
+      mode: always
+      encoding: UTF-8
+
+server:
+  port: 8081
+
+logging:
+  level:
+    com.ptit.integration.academic: INFO
