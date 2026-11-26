@@ -1,0 +1,14 @@
+$kind: http-request
+url: "{{baseUrl}}/api/students/B22DCCN001"
+method: GET
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('HTTP 200', function () { pm.response.to.have.status(200); });
+      pm.test('Tra dung ma va du cac truong', function () {
+        const body = pm.response.json();
+        pm.expect(body.studentId).to.eql('B22DCCN001');
+        ['fullName', 'email', 'className', 'major'].forEach(k => pm.expect(body[k]).to.be.a('string').and.not.empty);
+      });
+    language: text/javascript
+order: 1000

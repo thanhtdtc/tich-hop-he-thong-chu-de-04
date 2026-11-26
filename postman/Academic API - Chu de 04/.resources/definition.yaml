@@ -1,0 +1,4 @@
+$kind: collection
+description: Kiem thu GET, POST, validation va ma sinh vien trung. Chay cac request theo thu tu; POST thanh cong tao B22DCCN013, sau do request duplicate kiem tra ma 409.
+variables:
+  baseUrl: http://localhost:8081
