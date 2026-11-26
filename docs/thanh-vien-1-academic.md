@@ -16,10 +16,12 @@ Hợp đồng API đóng vai trò thỏa thuận giữa bên cung cấp và bên
 
 REST là phong cách kiến trúc cho dịch vụ web, trong đó dữ liệu được biểu diễn như các tài nguyên được định danh bằng URI. Academic dùng tài nguyên sinh viên tại `/api/students/{studentId}`. Địa chỉ mô tả tài nguyên; HTTP method mô tả hành động mà client muốn thực hiện.
 
-Academic cung cấp hai thao tác chính:
+Academic cung cấp hai thao tác chính trên tài nguyên sinh viên, nằm trong nhóm bốn HTTP method phổ biến của REST:
 
-- `GET /api/students/{studentId}` đọc hồ sơ theo mã sinh viên. Đây là thao tác truy vấn, không thay đổi dữ liệu.
-- `POST /api/students` nhận hồ sơ JSON và tạo một sinh viên mới.
+- `GET`: đọc dữ liệu, không làm thay đổi trạng thái hệ thống (ví dụ `GET /api/students/{studentId}` đọc hồ sơ theo mã sinh viên).
+- `POST`: tạo mới tài nguyên từ dữ liệu JSON gửi lên (ví dụ `POST /api/students` tạo một sinh viên mới).
+- `PUT`: cập nhật tài nguyên đã tồn tại và có tính lũy đẳng (idempotent — gọi nhiều lần với cùng nội dung cho cùng kết quả cuối); trong demo của nhóm, Finance API dùng `PUT /api/tuitions/{id}/status` để đổi trạng thái học phí giữa `UNPAID` và `PAID`.
+- `DELETE`: xóa tài nguyên theo định danh; trong phạm vi demo, nhóm không mở endpoint `DELETE` để tránh mất dữ liệu hồ sơ sinh viên và lịch sử học phí.
 
 Request/response sử dụng HTTP. Client gửi method, URL, header và có thể gửi body; server xử lý rồi trả status code, header và body. Ví dụ, khi Portal gửi GET cho `B22DCCN001`, Academic truy vấn bảng `student` và trả hồ sơ JSON cùng trạng thái `200 OK`.
 
