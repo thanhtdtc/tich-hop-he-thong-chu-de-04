@@ -1,0 +1,22 @@
+$kind: http-request
+url: "{{baseUrl}}/api/students"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: json
+  content: |-
+    {
+      "studentId": "B22DCCN013",
+      "fullName": "Nguyen Thi Test",
+      "email": "TestTN.b22cn013@stu.ptit.edu.vn",
+      "className": "D22CQCN01-B",
+      "major": "Cong nghe thong tin"
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('HTTP 201', function () { pm.response.to.have.status(201); });
+      pm.test('Tra lai ban ghi vua tao', function () { const b = pm.response.json(); pm.expect(b.studentId).to.eql('B22DCCN013'); pm.expect(b.fullName).to.eql('Nguyen Thi Test'); });
+    language: text/javascript
+order: 4000

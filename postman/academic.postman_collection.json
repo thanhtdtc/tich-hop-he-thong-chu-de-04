@@ -1,0 +1,87 @@
+{
+  "info": {
+    "_postman_id": "45de90c9-00d2-4db8-9b6f-1ae8f725f001",
+    "name": "Academic API - Chu de 04",
+    "description": "Kiem thu GET, POST, validation va ma sinh vien trung. Chay cac request theo thu tu; POST thanh cong tao B22DCCN013, sau do request duplicate kiem tra ma 409.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8081" }
+  ],
+  "item": [
+    {
+      "name": "GET - sinh vien ton tai (200)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/students/B22DCCN001"
+      },
+      "event": [{
+        "listen": "test",
+        "script": { "type": "text/javascript", "exec": [
+          "pm.test('HTTP 200', function () { pm.response.to.have.status(200); });",
+          "pm.test('Tra dung ma va du cac truong', function () {",
+          "  const body = pm.response.json();",
+          "  pm.expect(body.studentId).to.eql('B22DCCN001');",
+          "  ['fullName', 'email', 'className', 'major'].forEach(k => pm.expect(body[k]).to.be.a('string').and.not.empty);",
+          "});"
+        ] }
+      }]
+    },
+    {
+      "name": "GET - khong tim thay (404)",
+      "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/students/B22DCCN999" },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('HTTP 404', function () { pm.response.to.have.status(404); });",
+        "pm.test('Dung error schema', function () { const b = pm.response.json(); pm.expect(b.error).to.eql('NOT_FOUND'); pm.expect(b.status).to.eql(404); });"
+      ] } }]
+    },
+    {
+      "name": "GET - ma sai dinh dang (400)",
+      "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/students/abc123" },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('HTTP 400', function () { pm.response.to.have.status(400); });",
+        "pm.test('Dung error schema', function () { const b = pm.response.json(); pm.expect(b.error).to.eql('BAD_REQUEST'); pm.expect(b.status).to.eql(400); });"
+      ] } }]
+    },
+    {
+      "name": "POST - tao sinh vien (201)",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"studentId\": \"B22DCCN013\",\n  \"fullName\": \"Nguyen Thi Test\",\n  \"email\": \"TestTN.b22cn013@stu.ptit.edu.vn\",\n  \"className\": \"D22CQCN01-B\",\n  \"major\": \"Cong nghe thong tin\"\n}", "options": { "raw": { "language": "json" } } },
+        "url": "{{baseUrl}}/api/students"
+      },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('HTTP 201', function () { pm.response.to.have.status(201); });",
+        "pm.test('Tra lai ban ghi vua tao', function () { const b = pm.response.json(); pm.expect(b.studentId).to.eql('B22DCCN013'); pm.expect(b.fullName).to.eql('Nguyen Thi Test'); });"
+      ] } }]
+    },
+    {
+      "name": "POST - du lieu khong hop le (400)",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"studentId\": \"B22DCCN014\",\n  \"fullName\": \"Invalid Email\",\n  \"email\": \"not-an-email\",\n  \"className\": \"D22CQCN01-B\",\n  \"major\": \"Cong nghe thong tin\"\n}", "options": { "raw": { "language": "json" } } },
+        "url": "{{baseUrl}}/api/students"
+      },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('HTTP 400', function () { pm.response.to.have.status(400); });",
+        "pm.test('Dung error schema', function () { const b = pm.response.json(); pm.expect(b.error).to.eql('BAD_REQUEST'); pm.expect(b.status).to.eql(400); });"
+      ] } }]
+    },
+    {
+      "name": "POST - ma da ton tai (409)",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"studentId\": \"B22DCCN013\",\n  \"fullName\": \"Nguyen Thi Test\",\n  \"email\": \"TestTN.b22cn013@stu.ptit.edu.vn\",\n  \"className\": \"D22CQCN01-B\",\n  \"major\": \"Cong nghe thong tin\"\n}", "options": { "raw": { "language": "json" } } },
+        "url": "{{baseUrl}}/api/students"
+      },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('HTTP 409', function () { pm.response.to.have.status(409); });",
+        "pm.test('Dung error schema', function () { const b = pm.response.json(); pm.expect(b.error).to.eql('CONFLICT'); pm.expect(b.status).to.eql(409); });"
+      ] } }]
+    }
+  ]
+}
