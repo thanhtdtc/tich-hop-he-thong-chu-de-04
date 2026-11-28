@@ -1,3 +1,6 @@
-spring:
-  application:
-    name: portal-backend
+server:
+  port: 8080
+academic:
+  url: ${ACADEMIC_URL:http://localhost:8081}
+finance:
+  url: ${FINANCE_URL:http://localhost:8082}
